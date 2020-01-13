@@ -8,30 +8,30 @@ use Psr\Log\LoggerInterface;
 
 class ResourcePresenter extends \CodeIgniter\RESTful\ResourcePresenter
 {
-	use ResourceTrait;
+    use ResourceTrait;
 
-	protected $helpers = ['alerts'];
+    protected $helpers = ['alerts'];
 
-	protected $viewData = [];
+    protected $viewData = [];
 
-	protected $viewOptions = [];
+    protected $viewOptions = [];
 
-	protected $viewBase = '';
+    protected $viewBase = '';
 
 
-	/************* CRUD METHODS *************/
-	
-	public function new()
-	{
-		helper('form');
-		return $this->request->isAJAX() ? $this->crudView('form') : $this->crudView('new');
-	}
-	
-	public function create()
-	{
+    /************* CRUD METHODS *************/
+
+    public function new()
+    {
+        helper('form');
+        return $this->request->isAJAX() ? $this->crudView('form') : $this->crudView('new');
+    }
+
+    public function create()
+    {
         $id = $this->_create($this->request->getPost());
-        if($id) {
-            if($this->request->isAJAX()) {
+        if ($id) {
+            if ($this->request->isAJAX()) {
                 $resp = $this->ajaxSuccess($this->msg("create"), ['id' => $id]);
             } else {
                 $this->alert('success', $this->msg("create"));
@@ -42,34 +42,34 @@ class ResourcePresenter extends \CodeIgniter\RESTful\ResourcePresenter
             $resp = $this->actionFailed('create');
         }
         return $resp;
-	}
+    }
 
-	public function index()
-	{
-	    $items = $this->_find($this->request->getGet());
-	    $this->viewData[$this->names] = $items;
-		return $this->crudView('index');
-	}
-	
-	public function show($id = null)
-	{
-	    $obj = $this->getEntity($id);
+    public function index()
+    {
+        $items = $this->_find($this->request->getGet());
+        $this->viewData[$this->names] = $items;
+        return $this->crudView('index');
+    }
+
+    public function show($id = null)
+    {
+        $obj = $this->getEntity($id);
         return $this->entityView($obj, 'show');
-	}
-	
-	public function edit($id = null)
-	{
-	    $obj = $this->getEntity($id);
-	    $view = $this->request->isAJAX() ? 'form' : 'edit';
-	    return $this->entityView($obj, $view);
-	}
+    }
 
-	public function update($id = null)
-	{
+    public function edit($id = null)
+    {
+        $obj = $this->getEntity($id);
+        $view = $this->request->isAJAX() ? 'form' : 'edit';
+        return $this->entityView($obj, $view);
+    }
+
+    public function update($id = null)
+    {
         $object = $this->getEntity($id);
-        if($object) {
-            if($this->_update($id, $this->request->getPost())) {
-                if($this->request->isAJAX()) {
+        if ($object) {
+            if ($this->_update($id, $this->request->getPost())) {
+                if ($this->request->isAJAX()) {
                     $resp = $this->ajaxSuccess($this->msg('update'), ['id' => $id]);
                 } else {
                     $this->alert('success', $this->msg("update"));
@@ -82,21 +82,21 @@ class ResourcePresenter extends \CodeIgniter\RESTful\ResourcePresenter
             return $resp;
         }
         return $this->entityNotFound();
-	}
-	
-	public function remove($id = null)
-	{
+    }
+
+    public function remove($id = null)
+    {
         $obj = $this->getEntity($id);
         $view = $this->request->isAJAX() ? 'confirm' : 'remove';
         return $this->entityView($obj, $view);
-	}
-	
-	public function delete($id = null)
-	{
+    }
+
+    public function delete($id = null)
+    {
         $object = $this->getEntity($id);
-        if($object) {
-            if($this->_delete($id)) {
-                if($this->request->isAJAX()) {
+        if ($object) {
+            if ($this->_delete($id)) {
+                if ($this->request->isAJAX()) {
                     $resp = $this->ajaxSuccess($this->msg('delete'), ['id' => $id]);
                 } else {
                     $this->alert('success', $this->msg("delete"));
@@ -109,9 +109,9 @@ class ResourcePresenter extends \CodeIgniter\RESTful\ResourcePresenter
             return $resp;
         }
         return $this->entityNotFound();
-	}
-	
-	/************* SUPPORT METHODS *************/
+    }
+
+    /************* SUPPORT METHODS *************/
 
     protected function msg($action)
     {
@@ -128,7 +128,7 @@ class ResourcePresenter extends \CodeIgniter\RESTful\ResourcePresenter
         return $this->ajaxResponse(true, $message, $data);
     }
 
-    protected function ajaxFail(string $message, array $errors=[])
+    protected function ajaxFail(string $message, array $errors = [])
     {
         return $this->ajaxResponse(false, $message, $errors);
     }
@@ -139,7 +139,7 @@ class ResourcePresenter extends \CodeIgniter\RESTful\ResourcePresenter
             'success' => $success ? true : false,
             'message' => $message
         ];
-        if(!empty($data)) {
+        if (!empty($data)) {
             $key = $success ? 'data' : 'errors';
             $response[$key] = $data;
         }
@@ -149,7 +149,7 @@ class ResourcePresenter extends \CodeIgniter\RESTful\ResourcePresenter
     protected function crudView(string $action)
     {
         $base = rtrim($this->viewBase, DIRECTORY_SEPARATOR);
-        if(!empty($base)) {
+        if (!empty($base)) {
             $base .= DIRECTORY_SEPARATOR;
         }
         $template = $base . $this->names . DIRECTORY_SEPARATOR . $action;
@@ -159,7 +159,7 @@ class ResourcePresenter extends \CodeIgniter\RESTful\ResourcePresenter
 
     protected function entityView($obj, $view)
     {
-        if(!$obj) {
+        if (!$obj) {
             return $this->entityNotFound();
         }
         $this->viewData[$this->name] = $obj;
@@ -168,7 +168,7 @@ class ResourcePresenter extends \CodeIgniter\RESTful\ResourcePresenter
 
     protected function getEntity($id)
     {
-        if($id) {
+        if ($id) {
             $object = $this->_read($id);
             if (!empty($object)) {
                 return $object;
@@ -177,40 +177,39 @@ class ResourcePresenter extends \CodeIgniter\RESTful\ResourcePresenter
         return false;
     }
 
-	protected function entityNotFound()
+    protected function entityNotFound()
     {
         $error = $this->msg('notFound');
-        if($this->request->isAJAX()) {
+        if ($this->request->isAJAX()) {
             return $this->response->setStatusCode(404, $error);
         }
         $this->alert('danger', $error);
         return redirect()->back()->withInput()->with('errors', [$error]);
     }
 
-	protected function actionFailed(string $action)
-	{
-	    $modelErrors = $this->model->errors();
-	    if($this->request->isAJAX()) {
-	        return $this->ajaxFail($this->errMsg($action), $modelErrors);
+    protected function actionFailed(string $action)
+    {
+        $modelErrors = $this->model->errors();
+        if ($this->request->isAJAX()) {
+            return $this->ajaxFail($this->errMsg($action), $modelErrors);
         }
         $errors = $modelErrors ?? [$this->errMsg($action)];
-		foreach ($errors as $error)
-		{
-			$this->alert('warning', $error);
-		}
-		return redirect()->back()->withInput()->with('errors', $errors);
-	}
-	
-	protected function alert($status, $message)
-	{
-		if ($alerts = service('alerts'))
-		{
-			$alerts->add($status, $message);
-		}
-	}
+        foreach ($errors as $error) {
+            $this->alert('warning', $error);
+        }
+        return redirect()->back()->withInput()->with('errors', $errors);
+    }
 
-	private function redirectTo($crudAction, ...$params) {
-        $method = get_class($this) .  "::" . $crudAction;
+    protected function alert($status, $message)
+    {
+        if ($alerts = service('alerts')) {
+            $alerts->add($status, $message);
+        }
+    }
+
+    private function redirectTo($crudAction, ...$params)
+    {
+        $method = get_class($this) . "::" . $crudAction;
         $route = route_to($method, ...$params);
         return redirect()->to($route);
     }

@@ -1,4 +1,5 @@
 <?php
+
 namespace Tatter\Forms\Traits;
 
 use Tatter\Forms\Exceptions\FormsException;
@@ -16,8 +17,7 @@ trait ResourceTrait
         parent::setModel($which);
 
         // Ensure we received a valid model
-        if (!$this->model instanceof \CodeIgniter\Model)
-        {
+        if (!$this->model instanceof \CodeIgniter\Model) {
             throw FormsException::forMissingModel(get_class($this));
         }
 
@@ -25,20 +25,17 @@ trait ResourceTrait
         helper('inflector');
 
         // Check for overriding model property
-        if (! empty($this->model->name))
-        {
+        if (!empty($this->model->name)) {
             $name = $this->model->name;
         }
 
         // Use the model class name
         // e.g. \App\Models\PhotoModel = photo(s)
-        else
-        {
+        else {
             $name = strtolower($this->modelName);
 
             // Remove namespaces
-            if ($offset = strrpos($name, '\\'))
-            {
+            if ($offset = strrpos($name, '\\')) {
                 $name = substr($name, $offset + 1);
             }
 
@@ -46,7 +43,7 @@ trait ResourceTrait
             $name = str_replace('model', '', $name);
         }
 
-        $this->name  = singular($name);
+        $this->name = singular($name);
         $this->names = plural($name);
     }
 
@@ -69,7 +66,7 @@ trait ResourceTrait
     protected function _delete($id): bool
     {
         $res = $this->model->delete($id);
-        if(is_bool($res)) {
+        if (is_bool($res)) {
             return $res;
         }
         $res = $this->_read($id);
