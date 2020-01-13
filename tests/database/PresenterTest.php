@@ -152,6 +152,7 @@ class PresenterTest extends ModuleTests\Support\DatabaseTestCase
 		ob_start();
 		$this->codeigniter->useSafeOutput(true)->run($this->routes);
 		$output = ob_get_clean();
+		var_dump($output);
 		
 		$this->assertEquals('', $output);
 		
