@@ -1,88 +1,96 @@
 <?php namespace Tatter\Forms\Controllers;
 
-use CodeIgniter\HTTP\RedirectResponse;
+
 use Tatter\Forms\Traits\ResourceTrait;
+use CodeIgniter\Entity;
+use CodeIgniter\HTTP\RedirectResponse;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class ResourceController extends \CodeIgniter\RESTful\ResourceController
 {
-	use ResourceTrait;
+    use ResourceTrait;
 
-	/************* CRUD METHODS *************/
-	
+    /************* CRUD METHODS *************/
+
+
+    public function new() {
+        return $this->respond([]);
+    }
+
 	public function create()
 	{
-		$data = $this->request->getPost();
-
-		if (! $id = $this->model->insert($data))
-		{
-			return $this->actionFailed('create', 422);
+		$id = $this->_create($this->request->getRawInput());
+		if (!$id) {
+		    return $this->actionFailed('create', 422);
 		}
-
-		return $this->respondCreated(null, lang('Forms.created', [$this->name]));
+		return $this->respondCreated(['id' => $id], lang('Forms.created', [$this->name]));
 	}
 
 	public function index()
 	{
-		return $this->respond($this->model->findAll());
+		$data = [];
+        $items = $this->_find($this->request->getGet());
+        if($items) {
+            foreach ($items as $item) {
+                $data[] = ($item instanceof Entity) ? $item->toArray() : $item;
+            }
+        }
+	    return $this->respond($data);
 	}
 	
 	public function show($id = null)
 	{
-		if (($object = $this->ensureExists($id)) instanceof ResponseInterface)
-		{
-			return $object;
-		}
+	    $obj = $this->_read($id);
+	    if(!empty($obj)) {
+	        if($obj instanceof Entity) {
+	            $obj = $obj->toArray();
+            } else if (is_object($obj)) {
+	            $obj = (array)$obj;
+            }
+            return $this->respond($obj);
+        }
+        return $this->entityNotFound();
+    }
 
-		return $this->respond([$this->model->find($id)]);
-	}
+    public function edit($id = null)
+    {
+	    return $this->show($id);
+    }
 	
 	public function update($id = null)
 	{
-		if (($object = $this->ensureExists($id)) instanceof ResponseInterface)
-		{
-			return $object;
-		}
-
-		$data = $this->request->getPost();
-
-		if (! $this->model->update($id, $data))
-		{
-			return $this->actionFailed('update', 422);
-		}
-
-		return $this->respond(null, 200, lang('Forms.updated', [$this->name]));
+	    if($this->entityExists($id)) {
+            if($this->_update($id, $this->request->getRawInput())) {
+                return $this->respond(['id' => $id], 200, lang('Forms.updated', [$this->name]));
+            }
+            return $this->actionFailed('update', 422);
+        }
+        return $this->failNotFound('Not Found', null, lang('Forms.notFound', [$this->name]));
 	}
 
 	public function delete($id = null)
 	{
-		if (($object = $this->ensureExists($id)) instanceof ResponseInterface)
-		{
-			return $object;
-		}
-		
-		if (! $this->model->delete($id))
-		{
-			return $this->actionFailed('delete');
-		}
+        if($this->entityExists($id)) {
+            if($this->_delete($id)) {
+                return $this->respondDeleted(['id' => $id], lang('Forms.deleted', [$this->name]));
+            }
+            return $this->actionFailed('delete');
+        }
+        return $this->entityNotFound();
+	}
 
-		return $this->respondDeleted(null, lang('Forms.deleted', [$this->name]));
-	}
-	
+
 	/************* SUPPORT METHODS *************/
-	
-	protected function ensureExists($id = null)
-	{
-		if ($object = $this->model->find($id))
-		{
-			return $object;
-		}
-		
-		return $this->failNotFound('Not Found', null, lang('Forms.notFound', [$this->name]));
-	}
+    protected function entityExists($id) {
+        return !empty($this->_read($id));
+    }
 
 	protected function actionFailed(string $action, int $status = 400)
 	{
-		$errors = $this->model->errors() ?? [lang("Forms.{$action}Failed", [$this->name])];
+		$message = lang("Forms.{$action}Failed", [$this->name]);
+	    //$errors = $this->model->errors() ?? [lang("Forms.{$action}Failed", [$this->name])];
 
 		$response = [
 			'status'   => $status,
@@ -92,4 +100,8 @@ class ResourceController extends \CodeIgniter\RESTful\ResourceController
 		
 		return $this->respond($response, $status, $message);
 	}
+
+	protected function entityNotFound() {
+        return $this->failNotFound('Not Found', null, lang('Forms.notFound', [$this->name]));
+    }
 }

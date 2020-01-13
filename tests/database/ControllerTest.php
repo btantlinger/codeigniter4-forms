@@ -11,59 +11,46 @@ class ControllerTest extends ModuleTests\Support\DatabaseTestCase
 
 	public function testResourceGet()
 	{
-		$_SERVER['argv']           = [
+		$_SERVER['argv'] = [
 			'index.php',
 			'api',
 			'factories',
 		];
 		$_SERVER['argc']           = 3;
-		$_SERVER['REQUEST_URI']    = '/factories';
+		$_SERVER['REQUEST_URI']    = '/api/factories';
 		$_SERVER['REQUEST_METHOD'] = 'GET';
 
 		ob_start();
 		$this->codeigniter->useSafeOutput(true)->run($this->routes);
-		$output = json_decode(ob_get_clean());
-		
-		$expected = [
-			'view' => 'factories/index',
-			'data' => [
-				'factories' => $this->model->findAll(),
-			],
-		];
-		
+		$out = ob_get_clean();
+		$output = json_decode($out);
+
+		$expected = $this->model->findAll();
 		$this->assertEquals($expected, $output);
 	}
 
 	public function testResourceShow()
 	{
-		$_SERVER['argv']           = [
+		$_SERVER['argv'] = [
 			'index.php',
 			'api',
 			'factories',
-			'show',
 			'1',
 		];
-		$_SERVER['argc']           = 5;
-		$_SERVER['REQUEST_URI']    = '/api/factories/show/1';
+		$_SERVER['argc']           = 4;
+		$_SERVER['REQUEST_URI']    = '/api/factories/1';
 		$_SERVER['REQUEST_METHOD'] = 'GET';
 
 		ob_start();
 		$this->codeigniter->useSafeOutput(true)->run($this->routes);
 		$output = json_decode(ob_get_clean());
-		
-		$expected = [
-			'view' => 'factories/show',
-			'data' => [
-				'factory' => $this->model->find(1),
-			],
-		];
-		
+		$expected = $this->model->find(1);
 		$this->assertEquals($expected, $output);
 	}
 
 	public function testResourceNew()
 	{
-		$_SERVER['argv']           = [
+		$_SERVER['argv'] = [
 			'index.php',
 			'api',
 			'factories',
@@ -75,19 +62,15 @@ class ControllerTest extends ModuleTests\Support\DatabaseTestCase
 
 		ob_start();
 		$this->codeigniter->useSafeOutput(true)->run($this->routes);
-		$output = json_decode(ob_get_clean());
-		
-		$expected = [
-			'view' => 'factories/new',
-			'data' => [],
-		];
+		$output = json_decode(ob_get_clean(), true);
+		$expected = [];
 		
 		$this->assertEquals($expected, $output);
 	}
 
 	public function testResourceCreate()
 	{
-		$_SERVER['argv']           = [
+		$_SERVER['argv'] = [
 			'index.php',
 			'api',
 			'factories',
@@ -106,6 +89,7 @@ class ControllerTest extends ModuleTests\Support\DatabaseTestCase
 		ob_start();
 		$this->codeigniter->useSafeOutput(true)->run($this->routes);
 		$output = ob_get_clean();
+		echo $output;
 		
 		$this->assertEquals('', $output);
 		
