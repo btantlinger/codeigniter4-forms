@@ -5,7 +5,7 @@ RESTful AJAX forms for CodeIgniter 4
 
 1. Install with Composer: `> composer require tatter/forms`
 2. Publish the assets: `> php spark assets:publish`
-3. Add the JavaScript to your views 
+3. Add the JavaScript to your views
 
 ## Features
 
